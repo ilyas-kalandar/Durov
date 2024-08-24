@@ -11,8 +11,8 @@ class Settings(BaseSettings):
     logging_format: str = Field(alias="LOGGING_FORMAT")
 
     # Serving settings
-    serving_host: str = Field(env="SERVING_HOST")
-    serving_port: int = Field(env="SERVING_PORT")
+    serving_host: str = Field(alias="SERVING_HOST")
+    serving_port: int = Field(alias="SERVING_PORT")
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="DUROV_")
 
