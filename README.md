@@ -32,7 +32,7 @@ DB_URL = "mysql+aiomysql://root:password@db/durov"
 
 LOGGING_LVL = "INFO"
 LOGGING_FORMAT = "[%(asctime)s] - |%(levelname)s| - %(message)s"
-
+![img.png](img.png)
 SERVING_HOST = "0.0.0.0"
 SERVING_PORT = 8000
 ```
@@ -48,3 +48,8 @@ docker-compose up --build db web
 ```commandline
 docker-compose up --build tests
 ```
+
+### Docs 
+Available at `/docs`
+
+![img.png](.github/img.png)
