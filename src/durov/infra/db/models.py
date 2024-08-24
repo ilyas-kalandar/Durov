@@ -1,24 +1,20 @@
-from datetime import datetime
-from typing import List, Self
-
 from sqlalchemy import (
-    Column,
-    Connection,
-    DateTime,
-    Enum,
     Integer,
     String,
-    Text,
-    Boolean,
-    ForeignKey,
-    Float,
-    event,
 )
 from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped
+
+from durov.app.models.user import User as UserModel
 
 
 class BaseModel(DeclarativeBase):
     """Base for all models"""
+
+
+class User(BaseModel):
+    """User's model"""
+
+    __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(
         Integer,
@@ -37,4 +33,13 @@ class BaseModel(DeclarativeBase):
     nickname: Mapped[str] = mapped_column(
         String(length=25),
         nullable=False,
+        unique=True,
     )
+
+    def to_domain(self) -> UserModel:
+        return UserModel(
+            id=self.id,
+            nickname=self.nickname,
+            first_name=self.first_name,
+            last_name=self.last_name,
+        )
