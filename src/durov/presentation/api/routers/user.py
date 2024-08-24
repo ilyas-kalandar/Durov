@@ -8,7 +8,13 @@ from durov.presentation.api.schemas.user import User, UserRegisteringRequest
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.post("/register", summary="Register user", response_model=User)
+@router.post(
+    "/register",
+    summary="Register user",
+    response_model=User,
+    status_code=status.HTTP_201_CREATED,
+    responses={201: {"description": "Successfully registered new user."}},
+)
 async def register_user(
     data: UserRegisteringRequest,
     user_service: UserServiceInterface = Depends(get_user_service),
