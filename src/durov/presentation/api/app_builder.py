@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -5,7 +6,6 @@ from fastapi import FastAPI
 from durov.infra.settings import Settings, load_settings
 from durov.presentation.api.boot import (
     init_logging,
-    destroy_engine,
     get_engine,
     get_session_maker,
 )
@@ -18,14 +18,16 @@ def build_lifespan(configuration: Settings):
         init_logging(configuration)
         engine = await get_engine(configuration)
 
-        session_maker = await get_session_maker(configuration)
+        session_maker = await get_session_maker(engine)
 
         app.state.settings = configuration
         app.state.session_maker = session_maker
         app.state.db_engine = engine
 
+        logging.info("App configured, starting serving.")
+
         yield
-        await destroy_engine(engine)
+        await engine.dispose()
 
     return lifespan
 
