@@ -1,6 +1,8 @@
 import asyncio
+import logging
 from collections import defaultdict
 from asyncio import Future
+from random import randint
 from typing import Dict
 
 from sqlalchemy import select
@@ -25,6 +27,10 @@ lock = asyncio.Lock()
 
 class UserRepo(BaseSQLAlchemyRepo, UserRepoInterface):
     """Impl of `UserRepoInterface`"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._logger = logging.getLogger("user-repo")
 
     async def create(self, params: UserCreationParamsDTO):
         """
@@ -62,7 +68,15 @@ class UserRepo(BaseSQLAlchemyRepo, UserRepoInterface):
         if first_one is None:
             raise UserNotFound("User not found")
 
-        return first_one.to_domain()
+        # Generate random identifier
+        random_id = randint(1, 20)
+
+        return User(
+            id=random_id,
+            nickname=first_one.nickname,
+            last_name=first_one.last_name,
+            first_name=first_one.first_name,
+        )
 
     async def _get_from_cache(self, nickname: str) -> User:
         # Slow method too
@@ -82,15 +96,18 @@ class UserRepo(BaseSQLAlchemyRepo, UserRepoInterface):
         """
 
         async with lock:
+            self._logger.info("Added ref for nickname: %s", nickname)
             REFS[nickname] += 1
 
             if nickname not in FUTURES:
+                self._logger.info("Added future for nickname: %s", nickname)
                 loop = asyncio.get_event_loop()
                 FUTURES[nickname] = loop.create_future()
                 user = await self._get_from_cache(nickname)
 
                 FUTURES[nickname].set_result(user)
 
+        self._logger.info("Waiting for future for %s", nickname)
         result = await FUTURES[nickname]
 
         async with lock:
